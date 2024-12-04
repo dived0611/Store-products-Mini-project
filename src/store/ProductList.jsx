@@ -5,20 +5,35 @@ export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [categories, setCategories] = useState([]);
+  const [currentCategory, setCurrentCategory] = useState("");
 
   //! Display products
   const displayProduct = () => {
-    if (products.length > 0) {
-      const filteredProducts = products.filter((product) =>
-        product.title.toLowerCase().includes(searchInput.toLowerCase()) || product.id.toString().includes(searchInput.toString())
-      );
-      return filteredProducts.map((product) => (
-        <Product key={product.id} product={product} />
-      ));
-    } else {
-      return <h5 className="fw-bold">Loading ...</h5>;
+    let productsTemp = [...products]
+    if (searchInput) {
+        productsTemp = productsTemp.filter(product => {
+            const title = product.title.toLowerCase()
+            const searchValue = searchInput.toLowerCase()
+            return (
+                title.includes(searchValue) ||
+                product.id.toString().includes(searchValue) ||
+                product.description.toLowerCase().includes(searchValue)
+            )
+        })
     }
-  };
+    if (currentCategory) {
+        productsTemp = productsTemp.filter(product => product.category === currentCategory)
+    }
+
+    if (productsTemp.length > 0) {
+        return productsTemp.map((product, key) => {
+            return <Product product={product} key={key}/>
+        })
+    }
+    return <tr>
+        <td colSpan={7}> No Items</td>
+    </tr>
+}
 
   //! Handle Search
   const handleSubmit = (e) => {
@@ -45,6 +60,8 @@ export default function ProductList() {
 //! display categories
 const handleClick = (category) => {
     
+    setCurrentCategory(category);
+
     
 }
   useEffect(() => {
