@@ -1,48 +1,105 @@
-import React from 'react'
-import { useState } from 'react'
-import { useEffect } from 'react'
-import Product from './Product'
+import React, { useState, useEffect } from "react";
+import Product from "./Product";
 
 export default function ProductList() {
-const [products, setProducts] = useState([])
+  const [products, setProducts] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [categories, setCategories] = useState([]);
 
-const getProducts =()=>{ //? fetch API
-    const products = fetch("https://fakestoreapi.com/products").
-        then(responce => responce.json().
-        then(responce => setProducts(responce))
-        .catch(err => console.log(err))
-    ) 
+  //! Display products
+  const displayProduct = () => {
+    if (products.length > 0) {
+      const filteredProducts = products.filter((product) =>
+        product.title.toLowerCase().includes(searchInput.toLowerCase()) || product.id.toString().includes(searchInput.toString())
+      );
+      return filteredProducts.map((product) => (
+        <Product key={product.id} product={product} />
+      ));
+    } else {
+      return <h5 className="fw-bold">Loading ...</h5>;
+    }
+  };
+
+  //! Handle Search
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const searchValue = e.target.elements.searchInput.value;
+    setSearchInput(searchValue);
+  };
+
+  //! Fetch Products
+  const getProducts = () => {
+    fetch("https://fakestoreapi.com/products")
+      .then((response) => response.json())
+      .then((data) => setProducts(data))
+      .catch((err) => console.error("Error fetching products:", err));
+  };
+
+  //! Fetch Categories
+  const getCategories = () => {
+    fetch("https://fakestoreapi.com/products/categories")
+    .then((response) => response.json())
+    .then((data) => setCategories(data))
+    .catch((err) => console.error("Error fetching products Categories:", err));
+  }
+//! display categories
+const handleClick = (category) => {
+    
     
 }
-    useEffect(() => {
-        getProducts() //? fetch API
-        
-        
-    }, [])
-
-
-    
-
+  useEffect(() => {
+    getProducts();
+    getCategories();
+  }, []);
 
   return (
-    <div className='container-fluid w-80 mx-autoç,,,,,,,,,,,,,,,,,,,,,,,,, '>
-    <center>      <h1 style={{padding: "20px"}}>Product List</h1>     </center>
-      <table className="table" >
+    <div className="container-fluid w-80 mx-auto">
+      <center>
+        <h1 style={{ padding: "20px" }}>Product List</h1>
+      </center>
+    {/*//! button catagories */}
+    {
+      categories.map((category) => (
+        <button
+          key={category}
+          className="btn btn-primary m-1 w-20"
+          onClick={() => handleClick(category)}
+        >
+          {category}
+        </button>
+        ))
+    }
+
+      {/* //! Search Form */}
+      <form onSubmit={handleSubmit}>
+        <div className="form-group d-flex flex-row m-2">
+          <input
+            type="text"
+            id="searchInput"
+            className="form-control w-50 border border-gray"
+            placeholder="Enter search product"
+          />
+          <button type="submit" className="btn btn-primary mx-2">
+            Search
+          </button>
+        </div>
+      </form>
+
+      {/* Product Table */}
+      <table className="table">
         <thead>
-            <tr>
-                <th>id</th>
-                <th>Title</th>
-                <th>Price</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Image</th>
-                <th>Rating</th>
-            </tr>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Image</th>
+            <th>Rating</th>
+          </tr>
         </thead>
-        <tbody>
-            <Product products={products} />
-        </tbody>
+        <tbody>{displayProduct()}</tbody>
       </table>
     </div>
-  )
+  );
 }
