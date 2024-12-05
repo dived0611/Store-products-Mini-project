@@ -9,7 +9,9 @@ export default function ProductList() {
 
   //! Display products
   const displayProduct = () => {
+
     let productsTemp = [...products]
+    
     if (searchInput) {
         productsTemp = productsTemp.filter(product => {
             const title = product.title.toLowerCase()
